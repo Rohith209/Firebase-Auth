@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <title> Login and Register with Firebase </title>
+    <!-- Fontawesome CDN Link -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <input type="checkbox" id="flip">
+        <div class="cover">
+            <div class="front">
+                <img src="images/frontImg.jpg" alt="">
+                <div class="text">
+                    <span class="text-1">Every new friend is a <br> new adventure</span>
+                    <span class="text-2">Let's get connected</span>
+                </div>
+            </div>
+            <div class="back">
+                <img class="backImg" src="images/backImg.jpg" alt="">
+                <div class="text">
+                    <span class="text-1">Complete miles of journey <br> with one step</span>
+                    <span class="text-2">Let's get started</span>
+                </div>
+            </div>
+        </div>
+        <div class="forms">
+            <div class="form-content">
+                <div class="login-form">
+                    <div class="status-label">
+                        <div class="success-label">
+                            <div class="alert alert-success">
+                                <strong>Success!</strong> Your Login is successful!.
+                            </div>
+                        </div>
+                        <div class="error-label">
+                            <div class="alert alert-danger">
+                                <strong>Failed!</strong> Your Login is un-successful!.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="title">Login</div>
+                    <form action="#">
+                        <div class="input-boxes">
+                            <div class="input-box">
+                                <i class="fas fa-envelope"></i>
+                                <input type="text" placeholder="Enter your email" required id="loginEmail">
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" placeholder="Enter your password" required id="loginPwd">
+                            </div>
+                            <div class="text"><a href="#">Forgot password?</a></div>
+                            <div class="button input-box">
+                                <input type="submit" value="Submit" id="loginBtn">
+                            </div>
+                            <div class="text sign-up-text">Don't have an account? <label for="flip">Sigup now</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="signup-form">
+                    <div class="status-label">
+                        <div class="success-label">
+                            <div class="alert alert-success">
+                                <strong>Success!</strong> Your Sign-up is successful!.
+                            </div>
+                        </div>
+                        <div class="error-label">
+                            <div class="alert alert-danger">
+                                <strong>Failed!</strong> Your Sign-up is un-successful!.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="title">Signup</div>
+                    <form action="#">
+                        <div class="input-boxes">
+                            <div class="input-box">
+                                <i class="fas fa-user"></i>
+                                <input type="text" placeholder="Enter your name" required id="regUsername">
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-envelope"></i>
+                                <input type="text" placeholder="Enter your email" required id="regEmail">
+                            </div>
+                            <div class="input-box">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" placeholder="Enter your password" required id="regPwd">
+                            </div>
+                            <div class="button input-box">
+                                <input type="submit" value="Submit" id="registerBtn">
+                            </div>
+                            <div class="text sign-up-text">Already have an account? <label for="flip">Login now</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="script.js"></script>
+
+    <script type="module">
+        
+            // Import the functions you need from the SDKs you need
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+            import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+            import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged  } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+            // Your web app's Firebase configuration
+           
+            const firebaseConfig = {
+                    apiKey: "AIzaSyANpcS6OHAtaPp-5a9EraP9wKUUrl2zVDA",
+                    authDomain: "fir-auth-4a317.firebaseapp.com",
+                    databaseURL: "https://fir-auth-4a317-default-rtdb.firebaseio.com",
+                    projectId: "fir-auth-4a317",
+                    storageBucket: "fir-auth-4a317.appspot.com",
+                    messagingSenderId: "652518026742",
+                    appId: "1:652518026742:web:e6a7f8831ca655741debd7"
+                };
+
+            // Initialize Firebase
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getDatabase(app);
+            
+            let registerBtn = document.getElementById('registerBtn');
+            registerBtn.addEventListener('click', function(){
+                let username = document.getElementById('regUsername').value;
+                let email = document.getElementById('regEmail').value;
+                let pwd = document.getElementById('regPwd').value;
+                
+                createUserWithEmailAndPassword(auth, email, pwd)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    set(ref(db, 'users/' + user.uid), {
+                        userId: user.uid,
+                        email: email,
+                        pwd: pwd,
+                        username: username
+                    })
+                    .then(() => {
+                        document.getElementsByClassName('success-label')[1].style.display = 'block';
+                        document.getElementsByClassName('error-label')[1].style.display = 'none';
+                        document.getElementsByClassName('signup-form')[0].childNodes[5].reset();
+                    })
+                    .catch((error) => {
+                        document.getElementsByClassName('success-label')[1].style.display = 'none';
+                        document.getElementsByClassName('error-label')[1].style.display = 'block';
+                        document.getElementsByClassName('signup-form')[0].childNodes[5].reset();
+                    });
+
+                    document.getElementsByClassName('signup-form')[0].childNodes[5].reset();
+                    
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    document.getElementsByClassName('success-label')[1].style.display = 'none';
+                    document.getElementsByClassName('error-label')[1].style.display = 'block';
+                    if(errorCode == "auth/email-already-in-use") {
+                        document.getElementsByClassName('alert-danger')[1].innerText = "Account already exists with this email!!";
+                        document.getElementById('regEmail').value = '';
+                        document.getElementById('regEmail').focus();
+                    }
+                    
+                });
+
+                
+
+                    
+            });
+
+            let loginBtn = document.getElementById('loginBtn');
+            loginBtn.addEventListener('click', function(){
+                let email = document.getElementById('loginEmail').value;
+                let pwd = document.getElementById('loginPwd').value;
+
+                signInWithEmailAndPassword(auth, email, pwd)
+                    .then((userCredential) => {
+                        const user = userCredential.user;   
+                        document.getElementsByClassName('success-label')[0].style.display = 'block';
+                        document.getElementsByClassName('error-label')[0].style.display = 'none'; 
+                        setTimeout(function(){
+                            document.getElementsByClassName('success-label')[0].style.display = 'none';
+                            document.getElementsByClassName('error-label')[0].style.display = 'none';
+                        },1000)                   
+                        
+                        // ...
+                    })
+                    .catch((error) => {
+                        const errorCode = error.code;
+                        const errorMessage = error.message;
+                        document.getElementsByClassName('success-label')[0].style.display = 'none';
+                        document.getElementsByClassName('error-label')[0].style.display = 'block';
+                        if(error.code == 'auth/user-not-found') {
+                            document.getElementsByClassName('alert-danger')[0].innerText = "User not found! Please Register yourself first!!";
+                            document.getElementById('loginEmail').value = '';
+                            document.getElementById('loginEmail').focus();
+                        }
+                        else if(error.code == 'auth/wrong-password') {
+                            document.getElementsByClassName('alert-danger')[0].innerText = "Wrong Password!";
+                            document.getElementById('loginPwd').value = '';
+                            document.getElementById('loginPwd').focus();
+                        }
+                        else {
+                            document.getElementsByClassName('alert-danger')[0].innerText = "Username and Password does not match!";
+                            document.getElementById('loginEmail').value = '';
+                            document.getElementById('loginPwd').value = '';
+                            document.getElementById('loginEmail').focus();
+                        }
+                        
+                        
+                    });
+
+                const user = auth.currentUser;
+
+                if (user !== null) {
+                    const displayName = user.displayName;
+                    const email = user.email;
+                    const photoURL = user.photoURL;
+                    const emailVerified = user.emailVerified;
+                    const uid = user.uid;
+                    user.providerData.forEach((profile) => {
+                        console.log("Sign-in provider: " + profile.providerId);
+                        console.log("  Provider-specific UID: " + profile.uid);
+                        console.log("  Name: " + profile.displayName);
+                        console.log("  Email: " + profile.email);
+                        console.log("  Photo URL: " + profile.photoURL);
+                    });
+                }
+            })
+
+            onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        const uid = user.uid;
+                        // ...
+                    } else {
+                        // User is signed out
+                        // ...
+                    }
+                });
+    </script>
+</body>
+
+</html>
